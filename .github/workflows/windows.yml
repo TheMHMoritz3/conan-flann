@@ -1,0 +1,79 @@
+# bincrafters-conventions:gha-workflow-version:1
+# You can add custom environment variables above the version tag
+# Do not modify the tag or anything below the tag
+# This script gets automatically updated
+
+# Possible configurations:
+# env:
+#   SPLIT_BY_BUILD_TYPES: "false"  # Possible values "false", "true", default: "false"
+
+# - IMPORTANT NOTICE: These configurations are actually not completely working as expected yet due to GHA limitations
+# but it is important to set this values already so they can be consumed later
+
+# You can furthermore set any environment variable understood by Conan and Conan Package Tools
+
+on: [push, pull_request]
+
+jobs:
+  splitByBuildTypesTrue:
+    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        winowsCompiler:
+        - { name: "Visual Studio", version: "16", buildType: "Debug"  }
+        - { name: "Visual Studio", version: "16", buildType: "Release"}
+    name: ${{ matrix.winowsCompiler.name }} ${{ matrix.winowsCompiler.version }} ${{ matrix.winowsCompiler.buildType }}
+    # if: ${{ env.SPLIT_BY_BUILD_TYPE }} == 'true'
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'
+      - name: Install Conan
+        run: |
+          pip install conan --upgrade
+          pip install conan_package_tools bincrafters_package_tools
+      - name: Run
+        env:
+          CONAN_LOGIN_USERNAME: ${{ secrets.CONAN_LOGIN_USERNAME }}
+          CONAN_PASSWORD: ${{ secrets.CONAN_PASSWORD }}
+          CONAN_BUILD_TYPES: ${{ matrix.winowsCompiler.buildType }}
+          CONAN_UPLOAD: ${{ secrets.CONAN_UPLOAD }}
+          CONAN_COMPILER: ${{ matrix.winowsCompiler.name }}
+          CONAN_USERNAME: "themhmoritz3"
+          CONAN_VISUAL_VERSIONS: ${{ matrix.winowsCompiler.version }}
+        run: |
+          python build.py
+
+  splitByBuildTypesTrue2:
+    runs-on: windows-2016
+    strategy:
+      fail-fast: false
+      matrix:
+        winowsCompiler:
+        - { name: "Visual Studio", version: "15", buildType: "Debug"  }
+        - { name: "Visual Studio", version: "15", buildType: "Release"}
+    name: ${{ matrix.winowsCompiler.name }} ${{ matrix.winowsCompiler.version }} ${{ matrix.winowsCompiler.buildType }}
+    # if: ${{ env.SPLIT_BY_BUILD_TYPE }} == 'true'
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'
+      - name: Install Conan
+        run: |
+          pip install conan --upgrade
+          pip install conan_package_tools bincrafters_package_tools
+      - name: Run
+        env:
+          CONAN_LOGIN_USERNAME: ${{ secrets.CONAN_LOGIN_USERNAME }}
+          CONAN_PASSWORD: ${{ secrets.CONAN_PASSWORD }}
+          CONAN_BUILD_TYPES: ${{ matrix.winowsCompiler.buildType }}
+          CONAN_UPLOAD: ${{ secrets.CONAN_UPLOAD }}
+          CONAN_COMPILER: ${{ matrix.winowsCompiler.name }}
+          CONAN_USERNAME: "themhmoritz3"
+          CONAN_VISUAL_VERSIONS: ${{ matrix.winowsCompiler.version }}
+        run: |
+          python build.py
+
